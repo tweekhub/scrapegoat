@@ -47,7 +47,7 @@ a = Analysis(
         (chrome_portable_path, 'chrome_portable'),
         (chromedriver_path, 'chromedriver')
     ],
-    hiddenimports=collect_submodules('tkinter') + collect_submodules('ttkbootstrap'),
+    hiddenimports=collect_submodules('tkinter') + collect_submodules('ttkbootstrap') + ['win32ctypes.pywin32', 'pywintypes', 'win32api'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

@@ -21,12 +21,13 @@ RUN apk update && apk add --no-cache \
 COPY . /app
 WORKDIR /app
 
-RUN python3 -m pip install --upgrade pip wheel && \
-    pip install -r requirements.txt && \
-    adduser -D -s /bin/bash "$USER" && \
+RUN adduser -D -s /bin/bash "$USER" && \
     chown -R "$USER":"$USER" /app
 
 USER "$USER"
+
+RUN python3 -m pip install --upgrade pip wheel && \
+    pip install -r requirements.txt
 
 ENV DISPLAY=:99
 
