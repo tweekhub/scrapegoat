@@ -11,21 +11,24 @@ block_cipher = None
 current_platform = platform.system().lower()
 architecture = 'x64' if sys.maxsize > 2**32 else 'x86'
 
-# Set the executable name based on the platform and architecture
+# Set the executable name and build path based on the platform and architecture
 if current_platform.startswith('win'):
     exe_name = f'scrapegoat_windows_{architecture}.exe'
+    build_path = 'D:\\a\\scrapegoat\\scrapegoat\\dist\\'
     chrome_portable_path = './chrome_portable/chrome-win64/'
     chromedriver_path = './chromedriver/chromedriver-win64/'
     chromedriver_binary = 'chromedriver.exe'
     chrome_binary = 'chrome.exe'
 elif current_platform == 'darwin':
     exe_name = f'scrapegoat_macos_{architecture}'
+    build_path = '/Users/runner/work/scrapegoat/scrapegoat/dist/'
     chrome_portable_path = './chrome_portable/chrome-mac-x64/'
     chromedriver_path = './chromedriver/chromedriver-mac-x64/'
     chromedriver_binary = 'chromedriver'
     chrome_binary = 'chrome'
 else:  # Linux
     exe_name = 'scrapegoat_linux'
+    build_path = '/home/runner/work/scrapegoat/scrapegoat/dist/'
     chrome_portable_path = './chrome_portable/chrome-linux64/'
     chromedriver_path = './chromedriver/chromedriver-linux64/'
     chromedriver_binary = 'chromedriver'
@@ -37,8 +40,8 @@ if getattr(sys, 'frozen', False):
     chromedriver_path = os.path.join(sys._MEIPASS, 'chromedriver')
 
 a = Analysis(
-    ['main.py'],
-    pathex=[],
+    ['src/main.py'],
+    pathex=['src'],
     binaries=[
         (os.path.join(chromedriver_path, chromedriver_binary), 'chromedriver'),
         (os.path.join(chrome_portable_path, chrome_binary), 'chrome')
@@ -88,3 +91,10 @@ coll = COLLECT(
     upx_exclude=[],
     name='scrapegoat',
 )
+
+# Set the output directory for the built binaries
+if not os.path.exists(build_path):
+    os.makedirs(build_path)
+
+import shutil
+shutil.move(os.path.join('dist', 'scrapegoat'), os.path.join(build_path, 'scrapegoat'))

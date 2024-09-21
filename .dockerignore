@@ -23,19 +23,18 @@ env/
 htmlcov/
 *.log*
 
-# Specific file patterns to ignore
-tree_*.txt
-downloads/
-downloads_attachments/
-tree_*
-
 # Test files and directories to ignore
 tests/
 
 # Project-specific files and directories
-*.zip
 .pyenv
 browsers/
 
 # Temporary files
 tree_*
+
+main.spec
+sonar-project.properties
+**/*.zip
+chrome-*
+chromedriver-*

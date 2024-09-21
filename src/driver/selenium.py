@@ -1,4 +1,3 @@
-from selenium import webdriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -8,7 +7,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException, TimeoutException, NoSuchElementException, StaleElementReferenceException
+from selenium import webdriver
 from . import logger
+
 from typing import Dict, List, Optional
 import time
 import os
@@ -95,13 +96,13 @@ class BrowserClient:
             chrome_path = os.path.join(sys._MEIPASS, 'chrome_portable')
             chromedriver_path = os.path.join(sys._MEIPASS, 'chromedriver')
         else:
-            chrome_path = os.path.join(os.getcwd(), 'driver', 'chrome-linux64')
-            chromedriver_path = os.path.join(os.getcwd(), 'driver', 'chromedriver-linux64')
+            chrome_path = os.path.join(os.getcwd(), 'chrome', 'browser')
+            chromedriver_path = os.path.join(os.getcwd(), 'chrome')
 
         if current_platform.startswith('win'):
             chrome_binary = 'chrome.exe'
             chromedriver_binary = 'chromedriver.exe'
-        else:
+        elif current_platform.startswith('linux') or current_platform.startswith('darwin'):
             chrome_binary = 'chrome'
             chromedriver_binary = 'chromedriver'
 

@@ -2,7 +2,9 @@ name: Create Release
 
 on:
   workflow_dispatch:
-  
+  push:
+    tags:
+      - 'v*'
 
 env:
   RELEASE_TAG: "0.1.0"
@@ -24,16 +26,23 @@ jobs:
             chromedriver_filename: "chromedriver-linux64.zip"
             chrome_url: "https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/linux64/chrome-linux64.zip"
             chromedriver_url: "https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/linux64/chromedriver-linux64.zip"
-            release_file: /build/main/scrapegoat_linux
+            release_file: /home/runner/work/scrapegoat/scrapegoat/dist/scrapegoat_linux
           - os: windows-latest
-            architecture: "x64"
-            build_name: "scrapegoat_windows_64.exe"
+            build_name: "scrapegoat_windows_x64.exe"
             build_cmd: pipenv run pyinstaller main.spec
             chrome_filename: "chrome-win64.zip"
             chromedriver_filename: "chromedriver-win64.zip"
             chrome_url: "https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/win64/chrome-win64.zip"
             chromedriver_url: "https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/win64/chromedriver-win64.zip"
             release_file: "D:\\a\\scrapegoat\\scrapegoat\\dist\\scrapegoat_windows_x64.exe"
+          # - os: macos-latest
+          #   build_name: "scrapegoat_macos_x64"
+          #   build_cmd: pipenv run pyinstaller main.spec
+          #   chrome_filename: "chrome-mac-x64.zip"
+          #   chromedriver_filename: "chromedriver-mac-x64.zip"
+          #   chrome_url: "https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/mac-x64/chrome-mac-x64.zip"
+          #   chromedriver_url: "https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/mac-x64/chromedriver-mac-x64.zip"
+          #   release_file: /Users/runner/work/scrapegoat/scrapegoat/dist/scrapegoat_macos_x64
 
     steps:
       - name: Checkout code
@@ -53,7 +62,7 @@ jobs:
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pipenv wheel
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
 
       - name: Install additional dependencies (if any)
         run: ${{ matrix.install_extra || 'echo "No extra dependencies"' }}

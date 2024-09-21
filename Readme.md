@@ -53,6 +53,7 @@ Please ensure that your code adheres to our coding standards and includes approp
     xhost + # allow from anywhere to connect (used for opening gui from within Container)
     # run your development container
     docker build -t scrapegoat . -f GoatFile
+    docker run --rm -it scrapegoat:latest /bin/sh
     docker run -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix scrapegoat:latest
 ```
 

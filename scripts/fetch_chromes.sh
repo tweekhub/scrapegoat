@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Create the browsers directory if it doesn't exist
-mkdir -p browsers
+# Create the chrome directory if it doesn't exist
+mkdir -p chrome
 
 # Set the Chrome version as a variable
 chrome_version="131.0.6724.0"
@@ -44,10 +44,10 @@ download_files() {
     local chromedriver_url="$2"
     
     echo "Downloading Chrome from $chrome_url..."
-    curl -L "$chrome_url" -o "browsers/$(basename $chrome_url)"
+    curl -L "$chrome_url" -o "chrome/$(basename $chrome_url)"
     
     echo "Downloading ChromeDriver from $chromedriver_url..."
-    curl -L "$chromedriver_url" -o "browsers/$(basename $chromedriver_url)"
+    curl -L "$chromedriver_url" -o "chrome/$(basename $chromedriver_url)"
 }
 
 # Main script

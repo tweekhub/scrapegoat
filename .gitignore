@@ -3,17 +3,9 @@
 config.yaml
 config.private
 *.private
-.pydeps
-chrome-*
-chromedriver-*
 *.zip
-.pyenv
 tests/
-tree_*.txt
-downloads/
-__pycache__/
-browsers/
-downloads_attachments/
+chrome/
 
 # Python related paths to ignore
 *.pyc
@@ -31,9 +23,5 @@ env/
 *.log
 .coverage
 htmlcov/
-
-# Logs
+__pycache__/
 *.log*
-
-# Temporary files
-tree_*
