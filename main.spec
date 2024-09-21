@@ -3,6 +3,7 @@
 import os
 import sys
 import platform
+import shutil
 from PyInstaller.utils.hooks import collect_submodules
 
 block_cipher = None
@@ -65,17 +66,13 @@ a = Analysis(
 chrome_files = []
 chromedriver_files = []
 
-if current_platform.startswith('win'):
-    chrome_files = [(os.path.join(chrome_portable_path, file), f'chrome_portable/{file}', 'DATA') for file in os.listdir(chrome_portable_path)]
-    chromedriver_files = [(os.path.join(chromedriver_path, file), f'chromedriver/{file}', 'DATA') for file in os.listdir(chromedriver_path)]
-elif current_platform == 'darwin':
-    chrome_files = [(os.path.join(chrome_portable_path, file), f'chrome_portable/{file}', 'DATA') for file in os.listdir(chrome_portable_path)]
-    chromedriver_files = [(os.path.join(chromedriver_path, file), f'chromedriver/{file}', 'DATA') for file in os.listdir(chromedriver_path)]
-else:  # Linux
-    chrome_files = [(os.path.join(chrome_portable_path, file), f'chrome_portable/{file}', 'DATA') for file in os.listdir(chrome_portable_path)]
-    chromedriver_files = [(os.path.join(chromedriver_path, file), f'chromedriver/{file}', 'DATA') for file in os.listdir(chromedriver_path)]
-
-a.binaries += chrome_files + chromedriver_files
+for platform_path, platform_prefix in [(chrome_portable_path, 'chrome_portable'), (chromedriver_path, 'chromedriver')]:
+    for root, dirs, files in os.walk(platform_path):
+        for file in files:
+            full_path = os.path.join(root, file)
+            relative_path = os.path.relpath(full_path, platform_path)
+            destination = os.path.join(platform_prefix, relative_path)
+            a.datas.append((destination, full_path, 'DATA'))
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
@@ -112,5 +109,8 @@ coll = COLLECT(
 if not os.path.exists(build_path):
     os.makedirs(build_path)
 
-import shutil
-shutil.move(os.path.join('dist', 'scrapegoat'), build_path)
+# Move the built files to the destination, overwriting if necessary
+source_path = os.path.join('dist', 'scrapegoat')
+if os.path.exists(build_path):
+    shutil.rmtree(build_path)
+shutil.move(source_path, build_path)
