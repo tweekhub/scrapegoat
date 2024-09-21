@@ -4,7 +4,7 @@ ScrapeGoat is an advanced web scraping tool that leverages artificial intelligen
 
 ## Introduction
 
-In the digital age, data is king. ScrapeGoat empowers users to efficiently collect and analyze web data, transforming raw information into actionable insights. By combining AI-driven decision-making with robust browser automation, ScrapeGoat offers a cutting-edge approach to web scraping that is both powerful and user-friendly.
+Scrape the web like a GOAT! ScrapeGoat is the ultimate web scraping tool, powered by AI steroids. This beast of a scraper empowers users to efficiently collect and analyze web data, transforming raw information into actionable insights faster than you can say "baa". By combining AI-driven decision-making with robust browser automation, ScrapeGoat offers a cutting-edge approach to web scraping that's not just powerful and user-friendly, it's downright revolutionary. Get ready to become the GOAT of web scraping!
 
 ## Features
 
@@ -33,6 +33,8 @@ A complete list of dependencies can be found in the `requirements.txt` file.
 
 For a comprehensive guide on how to use ScrapeGoat, please refer to our [User Manual](./docs/user_manual.md).
 
+
+
 ## Contributing
 
 We welcome contributions from the community! If you'd like to contribute to ScrapeGoat, please follow these steps:
@@ -44,6 +46,15 @@ We welcome contributions from the community! If you'd like to contribute to Scra
 5. Submit a pull request to the main repository
 
 Please ensure that your code adheres to our coding standards and includes appropriate tests. For more information, see our [Contribution Guidelines](./CONTRIBUTING.md).
+
+```bash
+    # dependencies, install if needed!
+    sudo apt install x11-xserver-utils xorg
+    xhost + # allow from anywhere to connect (used for opening gui from within Container)
+    # run your development container
+    docker build -t scrapegoat . -f GoatFile
+    docker run -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix scrapegoat:latest
+```
 
 ## License
 
