@@ -105,12 +105,3 @@ coll = COLLECT(
     name='scrapegoat',
 )
 
-# Set the output directory for the built binaries
-if not os.path.exists(build_path):
-    os.makedirs(build_path)
-
-# Move the built files to the destination, overwriting if necessary
-source_path = os.path.join('build', 'main', 'scrapegoat')
-if os.path.exists(build_path):
-    shutil.rmtree(build_path)
-shutil.move(source_path, build_path)
