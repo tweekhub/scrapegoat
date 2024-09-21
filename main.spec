@@ -25,7 +25,7 @@ elif current_platform == 'darwin':
     chrome_portable_path = './chrome_portable/chrome-mac-x64/'
     chromedriver_path = './chromedriver/chromedriver-mac-x64/'
     chromedriver_binary = 'chromedriver'
-    chrome_binary = 'chrome'
+    chrome_binary = 'Google Chrome.app/Contents/MacOS/Google Chrome'
 else:  # Linux
     exe_name = 'scrapegoat_linux'
     build_path = '/home/runner/work/scrapegoat/scrapegoat/dist/'
@@ -60,6 +60,22 @@ a = Analysis(
     cipher=block_cipher,
     noarchive=False,
 )
+
+# Add Chrome and ChromeDriver to the binary collection
+chrome_files = []
+chromedriver_files = []
+
+if current_platform.startswith('win'):
+    chrome_files = [(os.path.join(chrome_portable_path, file), f'chrome_portable/{file}') for file in os.listdir(chrome_portable_path)]
+    chromedriver_files = [(os.path.join(chromedriver_path, file), f'chromedriver/{file}') for file in os.listdir(chromedriver_path)]
+elif current_platform == 'darwin':
+    chrome_files = [(os.path.join(chrome_portable_path, file), f'chrome_portable/{file}') for file in os.listdir(chrome_portable_path)]
+    chromedriver_files = [(os.path.join(chromedriver_path, file), f'chromedriver/{file}') for file in os.listdir(chromedriver_path)]
+else:  # Linux
+    chrome_files = [(os.path.join(chrome_portable_path, file), f'chrome_portable/{file}') for file in os.listdir(chrome_portable_path)]
+    chromedriver_files = [(os.path.join(chromedriver_path, file), f'chromedriver/{file}') for file in os.listdir(chromedriver_path)]
+
+a.binaries += chrome_files + chromedriver_files
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
@@ -97,4 +113,4 @@ if not os.path.exists(build_path):
     os.makedirs(build_path)
 
 import shutil
-shutil.move(os.path.join('dist', 'scrapegoat'), os.path.join(build_path, 'scrapegoat'))
+shutil.move(os.path.join('dist', 'scrapegoat'), build_path)
