@@ -1,0 +1,105 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+
+env:
+  RELEASE_TAG: "0.1.0"
+  
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            build_name: "scrapegoat_linux"
+            install_extra: sudo apt-get install -y python3-tk
+            build_cmd: pipenv run pyinstaller main.spec
+            chrome_filename: "chrome-linux64.zip"
+            chromedriver_filename: "chromedriver-linux64.zip"
+            chrome_url: "https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/linux64/chrome-linux64.zip"
+            chromedriver_url: "https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/linux64/chromedriver-linux64.zip"
+            release_file: dist/scrapegoat_linux
+          - os: windows-latest
+            architecture: "x64"
+            build_name: "scrapegoat_windows_64.exe"
+            build_cmd: pipenv run pyinstaller main.spec
+            chrome_filename: "chrome-win64.zip"
+            chromedriver_filename: "chromedriver-win64.zip"
+            chrome_url: "https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/win64/chrome-win64.zip"
+            chromedriver_url: "https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/win64/chromedriver-win64.zip"
+            release_file: "D:\\a\\scrapegoat\\scrapegoat\\dist\\scrapegoat_windows_x64.exe"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pipenv"
+
+      - name: Run image
+        uses: tiagovrtr/actions-pipenv@v1
+        with:
+          pipenv-version: "v2022.9.8"
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pipenv wheel
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: Install additional dependencies (if any)
+        run: ${{ matrix.install_extra || 'echo "No extra dependencies"' }}
+
+      - id: cache-pipenv
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
+
+      - name: Install pipenv dependencies
+        if: steps.cache-pipenv.outputs.cache-hit != 'true'
+        run: |
+          pipenv install --deploy --dev
+
+      - name: Cache Chrome Portable
+        id: cache-chrome
+        uses: actions/cache@v4
+        with:
+          path: chrome_portable/**
+          key: chrome-${{ runner.os }}-${{ hashFiles(matrix.chrome_url) }}
+
+      - name: Download Chrome Portable
+        if: steps.cache-chrome.outputs.cache-hit != 'true'
+        run: |
+          curl -L ${{ matrix.chrome_url }} -o chrome_portable.zip
+          unzip chrome_portable.zip -d chrome_portable
+
+      - name: Cache ChromeDriver
+        id: cache-chromedriver
+        uses: actions/cache@v4
+        with:
+          path: chromedriver/**
+          key: chromedriver-${{ runner.os }}-${{ hashFiles(matrix.chromedriver_url) }}
+
+      - name: Download ChromeDriver
+        if: steps.cache-chromedriver.outputs.cache-hit != 'true'
+        run: |
+          curl -L ${{ matrix.chromedriver_url }} -o chromedriver.zip
+          unzip chromedriver.zip -d chromedriver
+
+      - name: Build executable
+        run: ${{ matrix.build_cmd }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          token: ${{ secrets.RELEASE_TOKEN }}
+          files: ${{ matrix.release_file }}

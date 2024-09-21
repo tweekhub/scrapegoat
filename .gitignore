@@ -1,0 +1,38 @@
+# Project-specific files and directories
+config.yaml
+config.private
+*.private
+.pydeps
+chrome-*
+chromedriver-*
+*.zip
+.pyenv
+tests/
+tree_*.txt
+downloads/
+__pycache__/
+browsers/
+downloads_attachments/
+
+# Python related paths to ignore
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+env/
+.env
+*.log
+.coverage
+htmlcov/
+
+# Logs
+*.log*
+
+# Temporary files
+tree_*
