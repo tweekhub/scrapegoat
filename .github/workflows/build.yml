@@ -8,7 +8,7 @@ on:
       - main
 
 env:
-  repo: ghcr.io/tinkerstation/containers
+  repo: ghcr.io/atonomic/containers
   context_path: .
   image: scrapegoat
   tag: 0.1.0
