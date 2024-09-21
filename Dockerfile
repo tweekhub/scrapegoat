@@ -21,12 +21,13 @@ RUN apk update && apk add --no-cache \
 COPY . /app
 WORKDIR /app
 
-RUN pip install -r requirements.txt && \
-    useradd -m -s /bin/bash "$USER"  && \
+RUN python3 -m pip install --upgrade pipenv wheel && \
+    pipenv install --deploy --dev && \
+    adduser -D -s /bin/bash "$USER" && \
     chown -R "$USER":"$USER" /app
 
 USER "$USER"
 
 ENV DISPLAY=:99
 
-CMD ["sh", "-c", "mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix && Xvfb :99 -screen 0 1024x768x16 & python3 main.py"]
+CMD ["sh", "-c", "mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix && Xvfb :99 -screen 0 1024x768x16 & pipenv run python main.py"]
