@@ -95,8 +95,8 @@ class BrowserClient:
             chrome_path = os.path.join(sys._MEIPASS, 'chrome_portable')
             chromedriver_path = os.path.join(sys._MEIPASS, 'chromedriver')
         else:
-            chrome_path = './driver/chrome-linux64'
-            chromedriver_path = './driver/chromedriver-linux64'
+            chrome_path = os.path.join(os.getcwd(), 'driver', 'chrome-linux64')
+            chromedriver_path = os.path.join(os.getcwd(), 'driver', 'chromedriver-linux64')
 
         if current_platform.startswith('win'):
             chrome_binary = 'chrome.exe'

@@ -30,4 +30,4 @@ USER "$USER"
 
 ENV DISPLAY=:99
 
-CMD ["sh", "-c", "mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix && Xvfb :99 -screen 0 1024x768x16 & pipenv run python main.py"]
+CMD ["sh", "-c", "mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix && Xvfb :99 -screen 0 1024x768x16 & python main.py"]
