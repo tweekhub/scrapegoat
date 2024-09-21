@@ -66,14 +66,14 @@ chrome_files = []
 chromedriver_files = []
 
 if current_platform.startswith('win'):
-    chrome_files = [(os.path.join(chrome_portable_path, file), f'chrome_portable/{file}') for file in os.listdir(chrome_portable_path)]
-    chromedriver_files = [(os.path.join(chromedriver_path, file), f'chromedriver/{file}') for file in os.listdir(chromedriver_path)]
+    chrome_files = [(os.path.join(chrome_portable_path, file), f'chrome_portable/{file}', 'DATA') for file in os.listdir(chrome_portable_path)]
+    chromedriver_files = [(os.path.join(chromedriver_path, file), f'chromedriver/{file}', 'DATA') for file in os.listdir(chromedriver_path)]
 elif current_platform == 'darwin':
-    chrome_files = [(os.path.join(chrome_portable_path, file), f'chrome_portable/{file}') for file in os.listdir(chrome_portable_path)]
-    chromedriver_files = [(os.path.join(chromedriver_path, file), f'chromedriver/{file}') for file in os.listdir(chromedriver_path)]
+    chrome_files = [(os.path.join(chrome_portable_path, file), f'chrome_portable/{file}', 'DATA') for file in os.listdir(chrome_portable_path)]
+    chromedriver_files = [(os.path.join(chromedriver_path, file), f'chromedriver/{file}', 'DATA') for file in os.listdir(chromedriver_path)]
 else:  # Linux
-    chrome_files = [(os.path.join(chrome_portable_path, file), f'chrome_portable/{file}') for file in os.listdir(chrome_portable_path)]
-    chromedriver_files = [(os.path.join(chromedriver_path, file), f'chromedriver/{file}') for file in os.listdir(chromedriver_path)]
+    chrome_files = [(os.path.join(chrome_portable_path, file), f'chrome_portable/{file}', 'DATA') for file in os.listdir(chrome_portable_path)]
+    chromedriver_files = [(os.path.join(chromedriver_path, file), f'chromedriver/{file}', 'DATA') for file in os.listdir(chromedriver_path)]
 
 a.binaries += chrome_files + chromedriver_files
 
