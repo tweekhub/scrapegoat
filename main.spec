@@ -15,21 +15,21 @@ architecture = 'x64' if sys.maxsize > 2**32 else 'x86'
 # Set the executable name and build path based on the platform and architecture
 if current_platform.startswith('win'):
     exe_name = f'scrapegoat_windows_{architecture}.exe'
-    build_path = 'D:\\a\\scrapegoat\\scrapegoat\\dist\\'
+    build_path = 'D:\\a\\scrapegoat\\scrapegoat\\build\\main\\'
     chrome_portable_path = './chrome_portable/chrome-win64/'
     chromedriver_path = './chromedriver/chromedriver-win64/'
     chromedriver_binary = 'chromedriver.exe'
     chrome_binary = 'chrome.exe'
 elif current_platform == 'darwin':
     exe_name = f'scrapegoat_macos_{architecture}'
-    build_path = '/Users/runner/work/scrapegoat/scrapegoat/dist/'
+    build_path = '/Users/runner/work/scrapegoat/scrapegoat/build/main/'
     chrome_portable_path = './chrome_portable/chrome-mac-x64/'
     chromedriver_path = './chromedriver/chromedriver-mac-x64/'
     chromedriver_binary = 'chromedriver'
     chrome_binary = 'Google Chrome.app/Contents/MacOS/Google Chrome'
 else:  # Linux
     exe_name = 'scrapegoat_linux'
-    build_path = '/home/runner/work/scrapegoat/scrapegoat/dist/'
+    build_path = '/home/runner/work/scrapegoat/scrapegoat/build/main/'
     chrome_portable_path = './chrome_portable/chrome-linux64/'
     chromedriver_path = './chromedriver/chromedriver-linux64/'
     chromedriver_binary = 'chromedriver'
@@ -110,7 +110,7 @@ if not os.path.exists(build_path):
     os.makedirs(build_path)
 
 # Move the built files to the destination, overwriting if necessary
-source_path = os.path.join('dist', 'scrapegoat')
+source_path = os.path.join('build', 'main', 'scrapegoat')
 if os.path.exists(build_path):
     shutil.rmtree(build_path)
 shutil.move(source_path, build_path)
