@@ -2,6 +2,7 @@ name: Create Release
 
 on:
   workflow_dispatch:
+  
 
 env:
   RELEASE_TAG: "0.1.0"
@@ -23,7 +24,7 @@ jobs:
             chromedriver_filename: "chromedriver-linux64.zip"
             chrome_url: "https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/linux64/chrome-linux64.zip"
             chromedriver_url: "https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/linux64/chromedriver-linux64.zip"
-            release_file: dist/scrapegoat_linux
+            release_file: /build/main/scrapegoat_linux
           - os: windows-latest
             architecture: "x64"
             build_name: "scrapegoat_windows_64.exe"
