@@ -32,6 +32,7 @@ virtualenv = "*"
 websocket-client = "*"
 wsproto = "*"
 pefile = "*"
+macholib = "*"
 
 [dev-packages]
 
