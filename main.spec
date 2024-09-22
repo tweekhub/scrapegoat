@@ -3,16 +3,13 @@
 import os
 import sys
 import platform
-import shutil
 from PyInstaller.utils.hooks import collect_submodules
 
 block_cipher = None
 
-# Determine platform and architecture
 current_platform = platform.system().lower()
 architecture = 'x64' if sys.maxsize > 2**32 else 'x86'
 
-# Set the executable name and build path based on the platform and architecture
 if current_platform.startswith('win'):
     exe_name = f'scrapegoat_windows_{architecture}.exe'
     build_path = 'D:\\a\\scrapegoat\\scrapegoat\\build\\main\\'
@@ -26,7 +23,7 @@ elif current_platform == 'darwin':
     chrome_portable_path = './chrome_portable/chrome-mac-x64/'
     chromedriver_path = './chromedriver/chromedriver-mac-x64/'
     chromedriver_binary = 'chromedriver'
-    chrome_binary = 'Google Chrome.app/Contents/MacOS/Google Chrome'
+    chrome_binary = 'Google Chrome For Testing.app/Contents/MacOS/Google Chrome For Testing'
 else:  # Linux
     exe_name = 'scrapegoat_linux'
     build_path = '/home/runner/work/scrapegoat/scrapegoat/build/main/'
@@ -35,7 +32,6 @@ else:  # Linux
     chromedriver_binary = 'chromedriver'
     chrome_binary = 'chrome'
 
-# If running inside a PyInstaller bundle, adjust the paths accordingly
 if getattr(sys, 'frozen', False):
     chrome_portable_path = os.path.join(sys._MEIPASS, 'chrome_portable')
     chromedriver_path = os.path.join(sys._MEIPASS, 'chromedriver')
@@ -62,25 +58,15 @@ a = Analysis(
     noarchive=False,
 )
 
-# Add Chrome and ChromeDriver to the binary collection
-chrome_files = []
-chromedriver_files = []
-
-for platform_path, platform_prefix in [(chrome_portable_path, 'chrome_portable'), (chromedriver_path, 'chromedriver')]:
-    for root, dirs, files in os.walk(platform_path):
-        for file in files:
-            full_path = os.path.join(root, file)
-            relative_path = os.path.relpath(full_path, platform_path)
-            destination = os.path.join(platform_prefix, relative_path)
-            a.datas.append((destination, full_path, 'DATA'))
-
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
     [],
-    exclude_binaries=True,
     name=exe_name,
     debug=False,
     bootloader_ignore_signals=False,
@@ -94,23 +80,3 @@ exe = EXE(
     entitlements_file=None,
 )
 
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name='scrapegoat',
-)
-
-# Set the output directory for the built binaries
-if not os.path.exists(build_path):
-    os.makedirs(build_path)
-
-# Move the built files to the destination, overwriting if necessary
-source_path = os.path.join('build', 'main', 'scrapegoat')
-if os.path.exists(build_path):
-    shutil.rmtree(build_path)
-shutil.move(source_path, build_path)
