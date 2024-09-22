@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "bc6219cfff2078974d1d15e04eda886c69c9f00ce5e4e772d9bfbb96395303e3"
+            "sha256": "ac610226295a8655320317de52d816416006723b50a3a1cede23591ffb21a5bf"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -188,6 +188,7 @@
                 "sha256:0e315d7583d38b8c77e815b1ecbdbf504a8258d8b3e17b61165c6feb60d18f2c"
             ],
             "index": "pypi",
+            "markers": "sys_platform == 'darwin'",
             "version": "==1.16.3"
         },
         "outcome": {
@@ -213,7 +214,7 @@
                 "sha256:76f8b485dcd3b1bb8166f1128d395fa3d87af26360c2358fb75b80019b957c6f"
             ],
             "index": "pypi",
-            "markers": "python_full_version >= '3.6.0'",
+            "markers": "sys_platform == 'win32'",
             "version": "==2024.8.26"
         },
         "pillow": {
@@ -364,7 +365,7 @@
                 "sha256:d162dc04946d704503b2edc4d55f3dba5c1d539ead017afa00142c38b9885755"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.6'",
+            "markers": "sys_platform == 'win32'",
             "version": "==0.2.3"
         },
         "requests": {
