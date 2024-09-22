@@ -11,7 +11,7 @@ env:
   context_path: .
   image: scrapegoat
   tag: 0.1.0
-  dockerfile_path: Dockerfile
+  dockerfile_path: GoatFile
 
 jobs:
   build-and-push:
