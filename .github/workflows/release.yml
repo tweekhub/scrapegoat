@@ -5,8 +5,6 @@ on:
   push:
     tags:
       - 'v*'
-    branches:
-      - main
 
 env:
   RELEASE_TAG: "0.1.0"
@@ -79,10 +77,6 @@ jobs:
         if: steps.cache-pipenv.outputs.cache-hit != 'true'
         run: |
           pipenv install --deploy --dev
-
-      - name: Install pefile (Windows)
-        if: matrix.os == 'windows-latest'
-        run: pipenv run pip install pefile
 
       - name: Cache Chrome Portable
         id: cache-chrome

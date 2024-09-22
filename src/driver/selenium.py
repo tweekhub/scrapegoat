@@ -2,8 +2,6 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException, TimeoutException, NoSuchElementException, StaleElementReferenceException
@@ -102,7 +100,10 @@ class BrowserClient:
         if current_platform.startswith('win'):
             chrome_binary = 'chrome.exe'
             chromedriver_binary = 'chromedriver.exe'
-        elif current_platform.startswith('linux') or current_platform.startswith('darwin'):
+        elif current_platform.startswith('darwin'):
+            chrome_binary = 'Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing'
+            chromedriver_binary = 'chromedriver'
+        else:
             chrome_binary = 'chrome'
             chromedriver_binary = 'chromedriver'
 

@@ -13,12 +13,14 @@ exceptiongroup = "*"
 filelock = "*"
 h11 = "*"
 idna = "*"
+macholib = {version = "*", markers = "sys_platform == 'darwin'"}
 outcome = "*"
+pefile = {version = "*", markers = "sys_platform == 'win32'"}
 pillow = "*"
 pipenv = "*"
 platformdirs = "*"
 PySocks = "*"
-pywin32-ctypes = "*"
+pywin32-ctypes = {version = "*", markers = "sys_platform == 'win32'"}
 requests = "*"
 selenium = "*"
 sniffio = "*"
@@ -31,8 +33,6 @@ urllib3 = "*"
 virtualenv = "*"
 websocket-client = "*"
 wsproto = "*"
-pefile = "*"
-macholib = "*"
 
 [dev-packages]
 

@@ -4,13 +4,14 @@ on:
   push:
     tags:
       - 'v*'
-
+    branches:
+      - main
 env:
   repo: ghcr.io/atonomic/scrapegoat
   context_path: .
   image: scrapegoat
   tag: 0.1.0
-  dockerfile_path: GoatFile
+  dockerfile_path: Dockerfile
 
 jobs:
   build-and-push:
@@ -26,7 +27,7 @@ jobs:
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        password: ${{ secrets.PACKAGES_TOKEN }}
 
     - name: Build and Push Docker Image
       run: |
