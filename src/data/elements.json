@@ -1,0 +1,48 @@
+{
+  "google": {
+    "login_page": [
+      {
+        "element_type": "button",
+        "selector_type": "XPATH",
+        "selector_value": "/html/body/div[1]/div[1]/div/div/div/div/div[2]/a",
+        "action": "USE_EMAIL",
+        "post_action": ""
+      },
+      {
+        "element_type": "textfield",
+        "selector_type": "XPATH",
+        "selector_value": "//input[@type='email']",
+        "action": "USE_PASSWORD",
+        "post_action": ""
+      },
+      {
+        "element_type": "checkbox",
+        "selector_type": "ID",
+        "selector_value": "os_cookie",
+        "action": "USE_SCRIPT",
+        "post_action": ""
+      },
+      {
+        "element_type": "checkbox",
+        "selector_type": "ID",
+        "selector_value": "gdpr",
+        "action": "USE_SCRIPT",
+        "post_action": ""
+      },
+      {
+        "element_type": "button",
+        "selector_type": "XPATH",
+        "selector_value": "/html/body/div[2]/div/div[3]/div[1]/div[2]/div/div/form/fieldset/div[5]/input",
+        "action": "click",
+        "post_action": ""
+      },
+      {
+        "element_type": "textfield",
+        "selector_type": "ID",
+        "selector_value": "2fpin",
+        "action": "GENERATE_MFA",
+        "post_action": "submit"
+      }
+    ]
+  }
+}

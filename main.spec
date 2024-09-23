@@ -10,32 +10,35 @@ block_cipher = None
 current_platform = platform.system().lower()
 architecture = 'x64' if sys.maxsize > 2**32 else 'x86'
 
+# Define executable name and paths based on the operating system
 if current_platform.startswith('win'):
     exe_name = f'scrapegoat_windows_{architecture}.exe'
     build_path = 'D:\\a\\scrapegoat\\scrapegoat\\dist\\'
-    chrome_portable_path = './chrome_portable/chrome-win64/'
-    chromedriver_path = './chromedriver/chromedriver-win64/'
+    chrome_portable_path = './chrome_portable/ungoogled-chromium_128.0.6613.137-1.1_windows_x64/'
+    chromedriver_path = './chromedriver/win64/'
     chromedriver_binary = 'chromedriver.exe'
     chrome_binary = 'chrome.exe'
 elif current_platform == 'darwin':
     exe_name = f'scrapegoat_macos_{architecture}'
     build_path = '/Users/runner/work/scrapegoat/scrapegoat/dist/'
-    chrome_portable_path = './chrome_portable/chrome-mac-x64/'
-    chromedriver_path = './chromedriver/chromedriver-mac-x64/'
+    chrome_portable_path = './chrome_portable/ungoogled-chromium_128.0.6613.137-1.1_x86-64-macos-signed.app/Contents/MacOS/'
+    chromedriver_path = './chromedriver/mac-x64/'
     chromedriver_binary = 'chromedriver'
-    chrome_binary = 'Google Chrome For Testing.app/Contents/MacOS/Google Chrome For Testing'
+    chrome_binary = 'ungoogled-chromium_128.0.6613.137-1.1_x86-64-macos-signed'
 else:  # Linux
     exe_name = 'scrapegoat_linux'
     build_path = '/home/runner/work/scrapegoat/scrapegoat/dist/'
-    chrome_portable_path = './chrome_portable/chrome-linux64/'
-    chromedriver_path = './chromedriver/chromedriver-linux64/'
+    chrome_portable_path = './chrome_portable/ungoogled-chromium_128.0.6613.137-1_linux/'
+    chromedriver_path = './chromedriver/linux64/'
     chromedriver_binary = 'chromedriver'
     chrome_binary = 'chrome'
 
+# Adjust paths when running as a frozen executable
 if getattr(sys, 'frozen', False):
     chrome_portable_path = os.path.join(sys._MEIPASS, 'chrome_portable')
     chromedriver_path = os.path.join(sys._MEIPASS, 'chromedriver')
 
+# Analysis step
 a = Analysis(
     ['src/main.py'],
     pathex=['src'],
@@ -60,6 +63,7 @@ a = Analysis(
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
+# Create the executable
 exe = EXE(
     pyz,
     a.scripts,
@@ -79,4 +83,3 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
 )
-
