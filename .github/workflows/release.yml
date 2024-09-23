@@ -22,75 +22,75 @@ jobs:
             build_name: "scrapegoat_linux"
             install_extra: sudo apt-get install -y python3-tk
             build_cmd: pipenv run pyinstaller main.spec
-            chrome_url: "https://github.com/ungoogled-software/ungoogled-chromium-portablelinux/releases/download/128.0.6613.137-1/ungoogled-chromium_128.0.6613.137-1_linux.tar.xz"
-            chromedriver_url: "https://storage.googleapis.com/chrome-for-testing-public/129.0.6668.58/linux64/chromedriver-linux64.zip"
+            chrome_filename: "chrome-linux64.zip"
+            chromedriver_filename: "chromedriver-linux64.zip"
+            chrome_url:  https://github.com/ungoogled-software/ungoogled-chromium-portablelinux/releases/download/128.0.6613.137-1/ungoogled-chromium_128.0.6613.137-1_linux.tar.xz
+            chromedriver_url: "https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/linux64/chromedriver-linux64.zip"
             release_file: /home/runner/work/scrapegoat/scrapegoat/dist/scrapegoat_linux
           - os: windows-latest
             build_name: "scrapegoat_windows_x64.exe"
             build_cmd: pipenv run pyinstaller main.spec
-            chrome_url: "https://github.com/ungoogled-software/ungoogled-chromium-windows/releases/download/128.0.6613.137-1.1/ungoogled-chromium_128.0.6613.137-1.1_windows_x64.zip"
-            chromedriver_url: "https://storage.googleapis.com/chrome-for-testing-public/129.0.6668.58/win64/chromedriver-win64.zip"
+            chrome_filename: "chrome-win64.zip"
+            chromedriver_filename: "chromedriver-win64.zip"
+            chrome_url: https://github.com/ungoogled-software/ungoogled-chromium-windows/releases/download/128.0.6613.137-1.1/ungoogled-chromium_128.0.6613.137-1.1_windows_x64.zip
+            chromedriver_url: "https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/win64/chromedriver-win64.zip"
             release_file: "D:\\a\\scrapegoat\\scrapegoat\\dist\\scrapegoat_windows_x64.exe"
           - os: macos-latest
             build_name: "scrapegoat_macos_x64"
             build_cmd: pipenv run pyinstaller main.spec
-            chrome_url: "https://github.com/claudiodekker/ungoogled-chromium-macos/releases/download/128.0.6613.137-1.1/ungoogled-chromium_128.0.6613.137-1.1_x86-64-macos-signed.dmg"
-            chromedriver_url: "https://storage.googleapis.com/chrome-for-testing-public/129.0.6668.58/mac-x64/chromedriver-mac-x64.zip"
+            chrome_filename: "chrome-mac-x64.zip"
+            chromedriver_filename: "chromedriver-mac-x64.zip"
+            chrome_url: https://github.com/ungoogled-software/ungoogled-chromium-macos/releases/download/128.0.6613.137-1.1/ungoogled-chromium_128.0.6613.137-1.1_macos-signed.zip
+            chromedriver_url: https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/mac-x64/chromedriver-mac-x64.zip
             release_file: /Users/runner/work/scrapegoat/scrapegoat/dist/scrapegoat_macos_x64
 
     steps:
-      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
           cache: "pipenv"
 
-      # Step 3: Install dependencies
+      - name: Run image
+        uses: tiagovrtr/actions-pipenv@v1
+        with:
+          pipenv-version: "v2022.9.8"
+
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pipenv wheel
-          if [[ ${{ matrix.os }} == 'ubuntu-latest' ]]; then
-            sudo apt-get install -y python3-tk
-          fi
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
 
-      # Step 4: Cache Pipenv virtualenv
+      - name: Install additional dependencies (if any)
+        run: ${{ matrix.install_extra || 'echo "No extra dependencies"' }}
+
       - id: cache-pipenv
         uses: actions/cache@v4
         with:
           path: ~/.local/share/virtualenvs
           key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
 
-      # Step 5: Install Pipenv dependencies
-      - name: Install Pipenv dependencies
+      - name: Install pipenv dependencies
         if: steps.cache-pipenv.outputs.cache-hit != 'true'
         run: |
           pipenv install --deploy --dev
 
-      # Step 6: Cache and download Chromium Portable
-      - name: Cache Chromium Portable
+      - name: Cache Chrome Portable
         id: cache-chrome
         uses: actions/cache@v4
         with:
           path: chrome_portable/**
           key: chrome-${{ runner.os }}-${{ hashFiles(matrix.chrome_url) }}
 
-      - name: Download Chromium Portable
+      - name: Download Chrome Portable
         if: steps.cache-chrome.outputs.cache-hit != 'true'
         run: |
           curl -L ${{ matrix.chrome_url }} -o chrome_portable.zip
-          if [[ ${{ matrix.os }} == 'ubuntu-latest' ]]; then
-            tar -xf chrome_portable.zip -C chrome_portable
-          else
-            unzip chrome_portable.zip -d chrome_portable
-          fi
+          unzip chrome_portable.zip -d chrome_portable
 
-      # Step 7: Cache and download ChromeDriver
       - name: Cache ChromeDriver
         id: cache-chromedriver
         uses: actions/cache@v4
@@ -104,11 +104,9 @@ jobs:
           curl -L ${{ matrix.chromedriver_url }} -o chromedriver.zip
           unzip chromedriver.zip -d chromedriver
 
-      # Step 8: Build the executable
       - name: Build executable
         run: ${{ matrix.build_cmd }}
 
-      # Step 9: Release the build
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
