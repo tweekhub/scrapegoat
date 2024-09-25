@@ -84,8 +84,8 @@ jobs:
           }
 
           Write-Host "Checking ChromeDriver executable:"
-          if (Test-Path "D:\a\scrapegoat\scrapegoat\ungoogled_chromium\chromedriver\chromedriver.exe") {
-            $chromeDriverVersion = & "D:\a\scrapegoat\scrapegoat\ungoogled_chromium\chromedriver\chromedriver.exe" --version
+          if (Test-Path "D:\a\scrapegoat\scrapegoat\ungoogled_chromium\chromedriver\chromedriver-win64\chromedriver.exe") {
+            $chromeDriverVersion = & "D:\a\scrapegoat\scrapegoat\ungoogled_chromium\chromedriver\chromedriver-win64\chromedriver.exe" --version
             Write-Host "ChromeDriver version: $chromeDriverVersion"
           } else {
             Write-Host "ChromeDriver executable not found"

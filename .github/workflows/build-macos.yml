@@ -55,7 +55,7 @@ jobs:
       - name: Download Ungoogled Chromium
         if: steps.cache-chromium.outputs.cache-hit != 'true'
         run: |
-          curl -L -o ungoogled-chromium.dmg ${CHROMIUM_BASE_URL}/${{ inputs.chromium_version }}/ungoogled-chromium_${{ inputs.chromium_version }}_x86-64-macos.dmg
+          curl -L -o ungoogled-chromium.dmg ${{ env.CHROMIUM_BASE_URL }}/${{ inputs.chromium_version }}/ungoogled-chromium_${{ inputs.chromium_version }}_x86-64-macos.dmg
           mkdir -p ${{ env.OUTPUT_DIR }}
           hdiutil attach ungoogled-chromium.dmg
           cp -R /Volumes/Ungoogled-Chromium/Ungoogled-Chromium.app ${{ env.OUTPUT_DIR }}/
