@@ -22,6 +22,14 @@ jobs:
       chromium_version: '129.0.6668.58-1.1'
       chromedriver_version: '131.0.6724.0'
 
+  build-macos-arm:
+    name: macOS ARM
+    uses: ./.github/workflows/build-mac-arm.yml
+    with:
+      python_version: '3.10'
+      chromium_version: '129.0.6668.70'
+      chromedriver_version: '131.0.6724.0'
+
   build-windows:
     name: Windows x64
     uses: ./.github/workflows/build-windows.yml
@@ -43,7 +51,7 @@ jobs:
       PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
 
   create-release:
-    needs: [build-linux, build-macos, build-windows, build-docker]
+    needs: [build-linux, build-macos, build-macos-arm, build-windows, build-docker]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -67,6 +75,12 @@ jobs:
           name: Windows Executable
           path: artifacts
 
+      - name: Download macOS ARM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macOS ARM Executable
+          path: artifacts
+
       - name: Read release message
         id: release_message
         run: echo "message=$(cat RELEASENOTES.md)" >> $GITHUB_OUTPUT
@@ -77,6 +91,7 @@ jobs:
           files: |
             artifacts/scrapegoat_linux
             artifacts/scrapegoat_macos_x64
+            artifacts/scrapegoat_macos_arm
             artifacts/scrapegoat_windows_x64.exe
           body: ${{ steps.release_message.outputs.message }}
           tag_name: ${{ github.ref_name }}

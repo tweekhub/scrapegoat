@@ -1,0 +1,110 @@
+name: 'Build macOS ARM'
+
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        description: 'Python version to use'
+        required: false
+        default: '3.10'
+        type: string
+      chromium_version:
+        description: 'Ungoogled Chromium version'
+        required: false
+        default: '129.0.6668.58-1.1'
+        type: string
+      chromedriver_version:
+        description: 'ChromeDriver version'
+        required: false
+        default: '129.0.6668.70'
+        type: string
+
+env:
+  CHROMIUM_BASE_URL: 'https://github.com/ungoogled-software/ungoogled-chromium-macos/releases/download'
+  CHROMEDRIVER_BASE_URL: 'https://storage.googleapis.com/chrome-for-testing-public'
+  OUTPUT_DIR: 'ungoogled_chromium'
+
+jobs:
+  build-macos-arm:
+    name: Bundle Executable (ARM)
+    runs-on: macos-14
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - name: Install pipenv
+        run: |
+          pip install --user pipenv
+          echo "$HOME/Library/Python/${{ inputs.python_version }}/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          pipenv install --dev
+
+      - name: Cache Ungoogled Chromium
+        id: cache-chromium
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.OUTPUT_DIR }}
+          key: ${{ runner.os }}-arm-chromium-${{ inputs.chromium_version }}
+
+      - name: Download Ungoogled Chromium
+        if: steps.cache-chromium.outputs.cache-hit != 'true'
+        run: |
+          curl -L -o ungoogled-chromium.dmg ${{ env.CHROMIUM_BASE_URL }}/${{ inputs.chromium_version }}/ungoogled-chromium_${{ inputs.chromium_version }}_arm64-macos.dmg
+          mkdir -p ${{ env.OUTPUT_DIR }}
+          hdiutil attach ungoogled-chromium.dmg
+          
+          # Dynamically get the volume name
+          VOLUME_NAME=$(ls /Volumes | grep -i "Chromium")
+          cp -R /Volumes/"$VOLUME_NAME"/Chromium.app ${{ env.OUTPUT_DIR }}/
+
+          hdiutil detach /Volumes/"$VOLUME_NAME"
+          ls -la ${{ env.OUTPUT_DIR }}
+
+      - name: Cache ChromeDriver 
+        id: cache-chromedriver
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.OUTPUT_DIR }}/chromedriver
+          key: ${{ runner.os }}-arm-chromedriver-${{ inputs.chromedriver_version }}
+
+      - name: Download ChromeDriver
+        if: steps.cache-chromedriver.outputs.cache-hit != 'true'
+        run: |
+          curl -L -o chromedriver.zip ${{ env.CHROMEDRIVER_BASE_URL }}/${{ inputs.chromedriver_version }}/mac-arm64/chromedriver-mac-arm64.zip
+          unzip chromedriver.zip
+          mv chromedriver-mac-arm64/chromedriver ${{ env.OUTPUT_DIR }}/
+          rm -rf chromedriver-mac-arm64 chromedriver.zip
+
+      - name: Debug - Check Chromium and ChromeDriver
+        run: |
+          echo "Checking Chromium executable:"
+          if [ -d "${{ env.OUTPUT_DIR }}/Chromium.app" ]; then
+            CHROME_VERSION=$(${{ env.OUTPUT_DIR }}/Chromium.app/Contents/MacOS/Chromium --version)
+            echo "Chromium version: $CHROME_VERSION"
+          else
+            echo "Chromium.app not found"
+          fi
+
+          echo "Checking ChromeDriver executable:"
+          if [ -f "${{ env.OUTPUT_DIR }}/chromedriver" ]; then
+            CHROMEDRIVER_VERSION=$(${{ env.OUTPUT_DIR }}/chromedriver --version)
+            echo "ChromeDriver version: $CHROMEDRIVER_VERSION"
+          else
+            echo "ChromeDriver executable not found"
+          fi
+
+      - name: Package the app using PyInstaller
+        run: pipenv run pyinstaller main.spec
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macOS ARM Executable
+          path: dist/scrapegoat_macos_arm64
