@@ -13,17 +13,10 @@ on:
         required: false
         default: '129.0.6668.58-1'
         type: string
-      chromedriver_version:
-        description: 'ChromeDriver version'
-        required: false
-        default: '131.0.6724.0'
-        type: string
 
 env:
   CHROMIUM_BASE_URL: 'https://github.com/ungoogled-software/ungoogled-chromium-portablelinux/releases/download'
   CHROMIUM_ARCHIVE_NAME: 'ungoogled-chromium.tar.xz'
-  CHROMEDRIVER_BASE_URL: 'https://storage.googleapis.com/chrome-for-testing-public'
-  CHROMEDRIVER_ARCHIVE_NAME: 'chromedriver.zip'
   OUTPUT_DIR: 'ungoogled_chromium'
 
 jobs:
@@ -60,19 +53,24 @@ jobs:
           mkdir -p ${{ env.OUTPUT_DIR }}
           tar -xvf ${{ env.CHROMIUM_ARCHIVE_NAME }} -C ${{ env.OUTPUT_DIR }}
 
-      - name: Cache ChromeDriver
-        id: cache-chromedriver
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.OUTPUT_DIR }}/chromedriver
-          key: ${{ runner.os }}-chromedriver-${{ inputs.chromedriver_version }}
-
-      - name: Download ChromeDriver
-        if: steps.cache-chromedriver.outputs.cache-hit != 'true'
+      - name: Check Chromium and ChromeDriver Version
         run: |
-          curl -L -o ${{ env.CHROMEDRIVER_ARCHIVE_NAME }} ${{ env.CHROMEDRIVER_BASE_URL }}/${{ inputs.chromedriver_version }}/linux64/chromedriver-linux64.zip
-          mkdir -p ${{ env.OUTPUT_DIR }}/chromedriver
-          unzip ${{ env.CHROMEDRIVER_ARCHIVE_NAME }} -d ${{ env.OUTPUT_DIR }}/chromedriver
+          if [ -f "${{ env.OUTPUT_DIR }}/ungoogled-chromium_${{ inputs.chromium_version }}_linux/chrome" ]; then
+            echo "Chromium version:"
+            ${{ env.OUTPUT_DIR }}/ungoogled-chromium_${{ inputs.chromium_version }}_linux/chrome --product-version
+          else
+            echo "Chromium executable not found"
+          fi
+          
+          if [ -f "${{ env.OUTPUT_DIR }}/ungoogled-chromium_${{ inputs.chromium_version }}_linux/chromedriver" ]; then
+            echo "ChromeDriver version:"
+            ${{ env.OUTPUT_DIR }}/ungoogled-chromium_${{ inputs.chromium_version }}_linux/chromedriver --version
+          else
+            echo "ChromeDriver executable not found"
+          fi
+          
+          echo "Listing contents of Chromium directory:"
+          ls -l ${{ env.OUTPUT_DIR }}/ungoogled-chromium_${{ inputs.chromium_version }}_linux/
 
       # - name: Package the app using PyInstaller
       #   run: pipenv run pyinstaller main.spec
