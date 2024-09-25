@@ -40,7 +40,7 @@ jobs:
       - name: Install pipenv
         run: |
           pip install --user pipenv
-          echo "$HOME/Library/Python/3.10/bin" >> $GITHUB_PATH
+          echo "$HOME/Library/Python/${{ inputs.python_version }}/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: |
@@ -62,11 +62,10 @@ jobs:
           
           # Dynamically get the volume name
           VOLUME_NAME=$(ls /Volumes | grep -i "Chromium")
-          cp -R /Volumes/$VOLUME_NAME/Chromium.app ${{ env.OUTPUT_DIR }}/
+          cp -R /Volumes/"$VOLUME_NAME"/Chromium.app ${{ env.OUTPUT_DIR }}/
 
-          hdiutil detach /Volumes/$VOLUME_NAME
+          hdiutil detach /Volumes/"$VOLUME_NAME"
           ls -la ${{ env.OUTPUT_DIR }}
-
 
       - name: Cache ChromeDriver 
         id: cache-chromedriver
@@ -82,52 +81,27 @@ jobs:
           unzip chromedriver.zip
           mv chromedriver-mac-x64/chromedriver ${{ env.OUTPUT_DIR }}/
           rm -rf chromedriver-mac-x64 chromedriver.zip
-          ls -la ${{ env.OUTPUT_DIR }}
 
-      - name: Debug - System Information
+      - name: Debug - Check Chromium and ChromeDriver
         run: |
-          echo "Operating System Information:"
-          sw_vers
-          echo "CPU Architecture:"
-          uname -m
-          echo "Available CPUs:"
-          sysctl -n hw.ncpu
-          echo "Available Memory:"
-          vm_stat | perl -ne '/page size of (\d+)/ and $size=$1; /Pages free: (\d+)/ and printf("Free Memory: %.2f GB\n", $1 * $size / 1048576 / 1024)'
-          echo "Disk Space:"
-          df -h
-          echo "Installed Software Versions:"
-          echo "Python: $(python --version)"
-          echo "Pip: $(pip --version)"
-          echo "Pipenv: $(pipenv --version)"
-          echo "Xcode: $(xcodebuild -version | head -n 1)"
-          echo "Homebrew: $(brew --version)"
-          echo "Git: $(git --version)"
-          echo "Environment Variables:"
-          env
+          echo "Checking Chromium executable:"
+          if [ -d "${{ env.OUTPUT_DIR }}/Chromium.app" ]; then
+            CHROME_VERSION=$(${{ env.OUTPUT_DIR }}/Chromium.app/Contents/MacOS/Chromium --version)
+            echo "Chromium version: $CHROME_VERSION"
+          else
+            echo "Chromium.app not found"
+          fi
 
-      - name: Debug - Check DMG contents and paths
-        run: |
-          echo "Contents of the current directory:"
-          ls -R
-          echo "Contents of ${{ env.OUTPUT_DIR }}:"
+          echo "Checking ChromeDriver executable:"
+          if [ -f "${{ env.OUTPUT_DIR }}/chromedriver" ]; then
+            CHROMEDRIVER_VERSION=$(${{ env.OUTPUT_DIR }}/chromedriver --version)
+            echo "ChromeDriver version: $CHROMEDRIVER_VERSION"
+          else
+            echo "ChromeDriver executable not found"
+          fi
+
+          echo "Listing contents of Chromium directory:"
           ls -R ${{ env.OUTPUT_DIR }}
-          echo "Disk space usage:"
-          df -h
-          echo "DMG file info:"
-          file ungoogled-chromium.dmg
-          echo "DMG file size:"
-          du -sh ungoogled-chromium.dmg
-          echo "Mounted volumes:"
-          ls -l /Volumes/
-          echo "Environment variables:"
-          env
-          echo "Contents of the DMG file:"
-          hdiutil attach ungoogled-chromium.dmg
-          ls -R /Volumes/Ungoogled-Chromium
-          hdiutil detach /Volumes/Ungoogled-Chromium
-          echo "DMG contents:"
-          hdiutil imageinfo ungoogled-chromium.dmg
 
       # - name: Package the app using PyInstaller
       #   run: pipenv run pyinstaller main.spec
