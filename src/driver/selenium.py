@@ -7,6 +7,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException, TimeoutException, NoSuchElementException, StaleElementReferenceException
 from selenium import webdriver
 from selenium.webdriver.common.alert import Alert
+from utils.filesystem import get_resource_path
 from . import logger
 
 from typing import Dict, List, Optional
@@ -91,18 +92,14 @@ class BrowserClient:
 
         logger.debug(f"Chrome configured with options: {options.arguments}")
         return options
-
     def _get_chrome_service(self, options: Options) -> Service:
         current_platform = platform.system().lower()
-        is_bundled = getattr(sys, 'frozen', False)
-
-        if is_bundled:
-            chrome_path = os.path.join(sys._MEIPASS, 'chrome_portable')
-            chromedriver_path = os.path.join(sys._MEIPASS, 'chromedriver')
+        if getattr(sys, 'frozen', False):
+            chrome_path = get_resource_path('chrome_portable')
+            chromedriver_path = get_resource_path('chromedriver')
         else:
-            chrome_path = os.path.join(os.getcwd(), 'chrome', 'browser')
-            chromedriver_path = os.path.join(os.getcwd(), 'chrome','browser')
-
+            chrome_path = get_resource_path(os.path.join('ungoogled-chromium_128.0.6613.137-1_linux'))
+            chromedriver_path = get_resource_path(os.path.join('ungoogled-chromium_128.0.6613.137-1_linux'))
         if current_platform.startswith('win'):
             chrome_binary = 'chrome.exe'
             chromedriver_binary = 'chromedriver.exe'
@@ -113,8 +110,8 @@ class BrowserClient:
             chrome_binary = 'chrome'
             chromedriver_binary = 'chromedriver'
 
-        chrome_binary_path = os.path.join(chrome_path, chrome_binary)
-        chromedriver_binary_path = os.path.join(chromedriver_path, chromedriver_binary)
+        chrome_binary_path = get_resource_path(os.path.join(chrome_path, chrome_binary))
+        chromedriver_binary_path = get_resource_path(os.path.join(chromedriver_path, chromedriver_binary))
 
         service = Service(executable_path=chromedriver_binary_path)
         options.binary_location = chrome_binary_path

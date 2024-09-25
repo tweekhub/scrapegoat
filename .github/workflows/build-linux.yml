@@ -1,0 +1,89 @@
+name: '   '
+
+on:
+  push:
+    tags:
+      - '*'
+
+env:
+  python_version: '3.10'
+  chromium_version: '129.0.6668.58-1'
+  chromium_base_url: 'https://github.com/ungoogled-software/ungoogled-chromium-portablelinux/releases/download'
+
+jobs:
+  build-linux:
+    name: Bundle Executable
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.python_version }}
+
+      - name: Install Pipenv
+        run: pip install --user pipenv
+
+      - name: Install Python Dependencies
+        run: |
+          pipenv install --dev
+
+      - name: Cache Ungoogled Chromium
+        id: cache-chromium
+        uses: actions/cache@v4
+        with:
+          path: ./ungoogled_chromium
+          key: ${{ runner.os }}-chromium-${{ hashFiles('**/${{ env.chromium_version }}_linux.tar.xz') }}
+
+      - name: Download Ungoogled Chromium
+        if: steps.cache-chromium.outputs.cache-hit != 'true'
+        run: |
+          curl -L -o ungoogled-chromium.tar.xz ${CHROMIUM_BASE_URL}/${{ env.chromium_version }}/ungoogled-chromium_${{ env.chromium_version }}_linux.tar.xz
+          mkdir -p ./ungoogled_chromium
+          tar -xvf ungoogled-chromium.tar.xz -C ./ungoogled_chromium
+
+      - name: Debug - List current directory
+        run: |
+          echo "Current directory contents:"
+          ls -R
+          echo "Ungoogled Chromium directory contents:"
+          ls -R ./ungoogled_chromium/ungoogled-chromium_${{ env.chromium_version }}_linux
+
+      - name: Debug - Print working directory
+        run: |
+          echo "Current working directory:"
+          pwd
+
+      - name: Debug - List Ungoogled Chromium directory
+        run: |
+          echo "Ungoogled Chromium directory contents:"
+          ls -R ./ungoogled_chromium
+
+      - name: Debug - Print environment variables
+        run: |
+          echo "Environment variables:"
+          env
+
+      - name: Debug - Check Python and Pipenv versions
+        run: |
+          echo "Python version:"
+          python --version
+          echo "Pipenv version:"
+          pipenv --version
+
+      - name: Debug - List Pipenv virtual environment
+        run: |
+          echo "Pipenv virtual environment:"
+          pipenv --venv
+          echo "Pipenv virtual environment contents:"
+          ls -R $(pipenv --venv)
+      # - name: Package the app using PyInstaller
+      #   run: pipenv run pyinstaller main.spec
+
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: Linux Executable
+      #     path: dist/scrapegoat_linux

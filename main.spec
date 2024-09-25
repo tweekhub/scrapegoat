@@ -14,7 +14,7 @@ architecture = 'x64' if sys.maxsize > 2**32 else 'x86'
 if current_platform.startswith('win'):
     exe_name = f'scrapegoat_windows_{architecture}.exe'
     build_path = 'D:\\a\\scrapegoat\\scrapegoat\\dist\\'
-    chrome_portable_path = './chrome_portable/ungoogled-chromium_128.0.6613.137-1.1_windows_x64/'
+    chrome_portable_path = '.\ungoogled_chromium\ungoogled-chromium_129.0.6668.58-1.1_windows\'
     chromedriver_path = './chromedriver/win64/'
     chromedriver_binary = 'chromedriver.exe'
     chrome_binary = 'chrome.exe'

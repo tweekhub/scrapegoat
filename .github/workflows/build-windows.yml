@@ -1,0 +1,74 @@
+name: '   '
+
+on:
+  push:
+    tags:
+      - '*'
+
+env:
+  PYTHON_VERSION: '3.10'
+  CHROMIUM_VERSION: '129.0.6668.58-1.1'
+  CHROMIUM_BASE_URL: 'https://github.com/ungoogled-software/ungoogled-chromium-windows/releases/download'
+  CHROMIUM_ARCHIVE_NAME: 'ungoogled-chromium.zip'
+  CHROMIUM_FOLDER_NAME: 'ungoogled-chromium_${{ env.CHROMIUM_VERSION }}_windows_x64'
+  CHROMEDRIVER_BASE_URL: 'https://storage.googleapis.com/chrome-for-testing-public/131.0.6724.0/win64/chromedriver-win64.zip'
+  CHROMEDRIVER_ARCHIVE_NAME: 'chromedriver.zip'
+  OUTPUT_DIR: 'ungoogled_chromium'
+jobs:
+  build-windows:
+    name: Bundle Executable
+    runs-on: windows-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Pipenv
+        run: pip install --user pipenv
+
+      - name: Install Python Dependencies
+        run: |
+          pipenv install --dev
+
+      - name: Cache Ungoogled Chromium
+        id: cache-chromium
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.OUTPUT_DIR }}
+          key: ${{ runner.os }}-chromium-${{ hashFiles('**/${{ env.CHROMIUM_VERSION }}_windows_x64.zip') }}
+
+      - name: Download Ungoogled Chromium
+        if: steps.cache-chromium.outputs.cache-hit != 'true'
+        run: |
+          Invoke-WebRequest -Uri "${{ env.CHROMIUM_BASE_URL }}/${{ env.CHROMIUM_VERSION }}/${{ env.CHROMIUM_FOLDER_NAME }}.zip" -OutFile ${{ env.CHROMIUM_ARCHIVE_NAME }}
+          New-Item -Path ${{ env.OUTPUT_DIR }} -ItemType Directory -Force
+          Expand-Archive -Path ${{ env.CHROMIUM_ARCHIVE_NAME }} -DestinationPath ${{ env.OUTPUT_DIR }}
+          Get-ChildItem -Path ${{ env.OUTPUT_DIR }} -Recurse
+          Get-ChildItem -Path "${{ env.OUTPUT_DIR }}\${{ env.CHROMIUM_FOLDER_NAME }}" -Recurse
+
+      - name: Cache ChromeDriver
+        id: cache-chromedriver
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.OUTPUT_DIR }}\chromedriver
+          key: ${{ runner.os }}-chromedriver-${{ env.CHROMEDRIVER_VERSION }}
+
+      - name: Download ChromeDriver
+        if: steps.cache-chromedriver.outputs.cache-hit != 'true'
+        run: |
+          Invoke-WebRequest -Uri "${{ env.CHROMEDRIVER_BASE_URL }}" -OutFile chromedriver.zip
+          New-Item -Path ${{ env.OUTPUT_DIR }}\chromedriver -ItemType Directory -Force
+          Expand-Archive -Path chromedriver.zip -DestinationPath ${{ env.OUTPUT_DIR }}\chromedriver
+
+      # - name: Package the app using PyInstaller
+      #   run: pipenv run pyinstaller main.spec
+
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: Windows Executable
+      #     path: "D:\\a\\scrapegoat\\scrapegoat\\dist\\scrapegoat_windows_x64.exe"

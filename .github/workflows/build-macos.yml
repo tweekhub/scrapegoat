@@ -1,0 +1,119 @@
+name: '   '
+
+on:
+  push:
+    tags:
+      - '*'
+
+env:
+  PYTHON_VERSION: '3.10'
+  CHROMIUM_VERSION: '129.0.6668.58-1.1'
+  CHROMIUM_BASE_URL: 'https://github.com/ungoogled-software/ungoogled-chromium-macos/releases/download'
+  CHROMEDRIVER_VERSION: '131.0.6724.0'
+  CHROMEDRIVER_BASE_URL: 'https://storage.googleapis.com/chrome-for-testing-public'
+  
+jobs:
+  build-macos:
+    name: Bundle Executable
+    runs-on: macos-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install pipenv
+        run: pip install --user pipenv
+
+      - name: Install dependencies
+        run: |
+          pipenv install --dev
+
+      - name: Cache Ungoogled Chromium
+        id: cache-chromium
+        uses: actions/cache@v4
+        with:
+          path: ./ungoogled_chromium
+          key: ${{ runner.os }}-chromium-${{ hashFiles('**/${{ env.CHROMIUM_VERSION }}_x86-64-macos.dmg') }}
+
+      - name: Download Ungoogled Chromium
+        if: steps.cache-chromium.outputs.cache-hit != 'true'
+        run: |
+          curl -L -o ungoogled-chromium.dmg ${CHROMIUM_BASE_URL}/${{ env.CHROMIUM_VERSION }}/ungoogled-chromium_${{ env.CHROMIUM_VERSION }}_x86-64-macos.dmg
+          mkdir -p ./ungoogled_chromium
+          hdiutil attach ungoogled-chromium.dmg
+          cp -R /Volumes/Ungoogled-Chromium/Ungoogled-Chromium.app ./ungoogled_chromium/
+          ls ./ungoogled_chromium
+          hdiutil detach /Volumes/Ungoogled-Chromium
+
+      - name: Cache ChromeDriver 
+        id: cache-chromedriver
+        uses: actions/cache@v4
+        with:
+          path: ./ungoogled_chromium/chromedriver
+          key: ${{ runner.os }}-chromedriver-${{ hashFiles('**/${{ env.CHROMEDRIVER_BASE_URL }}/${{ env.CHROMEDRIVER_VERSION }}/mac-x64/chromedriver-mac-x64.zip') }}
+
+      - name: Download ChromeDriver
+        if: steps.cache-chromedriver.outputs.cache-hit != 'true'
+        run: 
+          curl -L -o chromedriver.zip ${CHROMEDRIVER_BASE_URL}/${{ env.CHROMEDRIVER_VERSION }}/mac-x64/chromedriver-mac-x64.zip
+          unzip chromedriver.zip
+          mv chromedriver ./ungoogled_chromium/
+          ls -la ./ungoogled_chromium
+
+      - name: Debug - System Information
+        run: |
+          echo "Operating System Information:"
+          sw_vers
+          echo "CPU Architecture:"
+          uname -m
+          echo "Available CPUs:"
+          sysctl -n hw.ncpu
+          echo "Available Memory:"
+          vm_stat | perl -ne '/page size of (\d+)/ and $size=$1; /Pages free: (\d+)/ and printf("Free Memory: %.2f GB\n", $1 * $size / 1048576 / 1024)'
+          echo "Disk Space:"
+          df -h
+          echo "Installed Software Versions:"
+          echo "Python: $(python --version)"
+          echo "Pip: $(pip --version)"
+          echo "Pipenv: $(pipenv --version)"
+          echo "Xcode: $(xcodebuild -version | head -n 1)"
+          echo "Homebrew: $(brew --version)"
+          echo "Git: $(git --version)"
+          echo "Environment Variables:"
+          env
+
+      - name: Debug - Check DMG contents and paths
+        run: |
+          echo "Contents of the current directory:"
+          ls -R
+          echo "Contents of ./ungoogled_chromium:"
+          ls -R ./ungoogled_chromium
+          echo "Disk space usage:"
+          df -h
+          echo "DMG file info:"
+          file ungoogled-chromium.dmg
+          echo "DMG file size:"
+          du -sh ungoogled-chromium.dmg
+          echo "Mounted volumes:"
+          ls -l /Volumes/
+          echo "Environment variables:"
+          env
+          echo "Contents of the DMG file:"
+          hdiutil attach ungoogled-chromium.dmg
+          ls -R /Volumes/Ungoogled-Chromium
+          hdiutil detach /Volumes/Ungoogled-Chromium
+          echo "DMG contents:"
+          hdiutil imageinfo ungoogled-chromium.dmg
+
+      # - name: Package the app using PyInstaller
+      #   run: pipenv run pyinstaller main.spec
+
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: macOS Executable
+      #     path: dist/scrapegoat_macos_x64
