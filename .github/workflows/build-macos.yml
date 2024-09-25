@@ -22,7 +22,7 @@ on:
 env:
   CHROMIUM_BASE_URL: 'https://github.com/ungoogled-software/ungoogled-chromium-macos/releases/download'
   CHROMEDRIVER_BASE_URL: 'https://storage.googleapis.com/chrome-for-testing-public'
-  
+  OUTPUT_DIR: 'ungoogled_chromium'
 jobs:
   build-macos:
     name: Bundle Executable
@@ -39,7 +39,7 @@ jobs:
       - name: Install pipenv
         run: |
           pip install --user pipenv
-          echo "$HOME/Library/Python/3.10/bin" >> $GITHUB_PATH
+          echo "$HOME/Library/Python/${{ inputs.python_version }}/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: |
@@ -49,33 +49,34 @@ jobs:
         id: cache-chromium
         uses: actions/cache@v4
         with:
-          path: ./ungoogled_chromium
+          path: ${{ env.OUTPUT_DIR }}
           key: ${{ runner.os }}-chromium-${{ inputs.chromium_version }}
 
       - name: Download Ungoogled Chromium
         if: steps.cache-chromium.outputs.cache-hit != 'true'
         run: |
           curl -L -o ungoogled-chromium.dmg ${CHROMIUM_BASE_URL}/${{ inputs.chromium_version }}/ungoogled-chromium_${{ inputs.chromium_version }}_x86-64-macos.dmg
-          mkdir -p ./ungoogled_chromium
+          mkdir -p ${{ env.OUTPUT_DIR }}
           hdiutil attach ungoogled-chromium.dmg
-          cp -R /Volumes/Ungoogled-Chromium/Ungoogled-Chromium.app ./ungoogled_chromium/
-          ls ./ungoogled_chromium
+          cp -R /Volumes/Ungoogled-Chromium/Ungoogled-Chromium.app ${{ env.OUTPUT_DIR }}/
           hdiutil detach /Volumes/Ungoogled-Chromium
+          ls -la ${{ env.OUTPUT_DIR }}
 
       - name: Cache ChromeDriver 
         id: cache-chromedriver
         uses: actions/cache@v4
         with:
-          path: ./ungoogled_chromium/chromedriver
+          path: ${{ env.OUTPUT_DIR }}/chromedriver
           key: ${{ runner.os }}-chromedriver-${{ inputs.chromedriver_version }}
 
       - name: Download ChromeDriver
         if: steps.cache-chromedriver.outputs.cache-hit != 'true'
         run: |
-          curl -L -o chromedriver.zip ${CHROMEDRIVER_BASE_URL}/${{ inputs.chromedriver_version }}/mac-x64/chromedriver-mac-x64.zip
+          curl -L -o chromedriver.zip ${{ env.CHROMEDRIVER_BASE_URL }}/${{ inputs.chromedriver_version }}/mac-x64/chromedriver-mac-x64.zip
           unzip chromedriver.zip
-          mv chromedriver ./ungoogled_chromium/
-          ls -la ./ungoogled_chromium
+          mv chromedriver-mac-x64/chromedriver ${{ env.OUTPUT_DIR }}/
+          rm -rf chromedriver-mac-x64 chromedriver.zip
+          ls -la ${{ env.OUTPUT_DIR }}
 
       - name: Debug - System Information
         run: |
@@ -103,8 +104,8 @@ jobs:
         run: |
           echo "Contents of the current directory:"
           ls -R
-          echo "Contents of ./ungoogled_chromium:"
-          ls -R ./ungoogled_chromium
+          echo "Contents of ${{ env.OUTPUT_DIR }}:"
+          ls -R ${{ env.OUTPUT_DIR }}
           echo "Disk space usage:"
           df -h
           echo "DMG file info:"

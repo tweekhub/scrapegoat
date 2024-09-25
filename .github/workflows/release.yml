@@ -40,7 +40,7 @@ jobs:
       tag: ${{ github.ref_name }}
       dockerfile_path: './GoatFile'
     secrets:
-      PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
 
   # create-release:
   #   needs: [build-linux, build-macos, build-windows, build-docker]
