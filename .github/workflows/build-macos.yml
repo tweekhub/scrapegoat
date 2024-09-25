@@ -40,7 +40,7 @@ jobs:
       - name: Install pipenv
         run: |
           pip install --user pipenv
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$HOME/Library/Python/3.10/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: |
