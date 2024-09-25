@@ -6,50 +6,40 @@ on:
     tags:
       - 'v*'
 
-env:
-  PYTHON_VERSION: '3.10'
-  CHROMIUM_VERSION_LINUX: '129.0.6668.58-1'
-  CHROMIUM_VERSION_MACOS_WINDOWS: '129.0.6668.58-1.1'
-  CHROMEDRIVER_VERSION: '131.0.6724.0'
-  DOCKER_REPO: 'ghcr.io/${{ github.repository }}'
-  DOCKER_IMAGE: 'scrapegoat'
-  DOCKER_CONTEXT: '.'
-  DOCKER_FILE: './GoatFile'
-
 jobs:
   build-linux:
     name: Linux x64
     uses: ./.github/workflows/build-linux.yml
     with:
-      python_version: ${{ env.PYTHON_VERSION }}
-      chromium_version: ${{ env.CHROMIUM_VERSION_LINUX }}
-      chromedriver_version: ${{ env.CHROMEDRIVER_VERSION }}
+      python_version: '3.10'
+      chromium_version: '129.0.6668.58-1'
+      chromedriver_version: '131.0.6724.0'
 
   build-macos:
     name: macOS x64
     uses: ./.github/workflows/build-macos.yml
     with:
-      python_version: ${{ env.PYTHON_VERSION }}
-      chromium_version: ${{ env.CHROMIUM_VERSION_MACOS_WINDOWS }}
-      chromedriver_version: ${{ env.CHROMEDRIVER_VERSION }}
+      python_version: '3.10'
+      chromium_version: '129.0.6668.58-1.1'
+      chromedriver_version: '131.0.6724.0'
 
   build-windows:
     name: Windows x64
     uses: ./.github/workflows/build-windows.yml
     with:
-      python_version: ${{ env.PYTHON_VERSION }}
-      chromium_version: ${{ env.CHROMIUM_VERSION_MACOS_WINDOWS }}
-      chromedriver_version: ${{ env.CHROMEDRIVER_VERSION }}
+      python_version: '3.10'
+      chromium_version: '129.0.6668.58-1.1'
+      chromedriver_version: '131.0.6724.0'
 
   build-docker:
     name: Docker
     uses: ./.github/workflows/build-docker.yml
     with:
-      repo: ${{ env.DOCKER_REPO }}
-      context_path: ${{ env.DOCKER_CONTEXT }}
-      image: ${{ env.DOCKER_IMAGE }}
+      repo: 'ghcr.io/${{ github.repository }}'
+      context_path: '.'
+      image: 'scrapegoat'
       tag: ${{ github.ref_name }}
-      dockerfile_path: ${{ env.DOCKER_FILE }}
+      dockerfile_path: './GoatFile'
     secrets:
       PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
