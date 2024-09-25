@@ -94,11 +94,11 @@ jobs:
           Write-Host "Listing contents of Chromium directory:"
           Get-ChildItem -Path "D:\a\scrapegoat\scrapegoat\ungoogled_chromium" -Recurse | Select-Object FullName, Length
 
-      # - name: Package the app using PyInstaller
-      #   run: pipenv run pyinstaller main.spec
+      - name: Package the app using PyInstaller
+        run: pipenv run pyinstaller main.spec
 
-      # - name: Upload artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: Windows Executable
-      #     path: "D:\\a\\scrapegoat\\scrapegoat\\dist\\scrapegoat_windows_x64.exe"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows Executable
+          path: "D:\\a\\scrapegoat\\scrapegoat\\dist\\scrapegoat_windows_x64.exe"

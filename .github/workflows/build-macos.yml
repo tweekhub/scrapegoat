@@ -100,14 +100,11 @@ jobs:
             echo "ChromeDriver executable not found"
           fi
 
-          echo "Listing contents of Chromium directory:"
-          ls -R ${{ env.OUTPUT_DIR }}
+      - name: Package the app using PyInstaller
+        run: pipenv run pyinstaller main.spec
 
-      # - name: Package the app using PyInstaller
-      #   run: pipenv run pyinstaller main.spec
-
-      # - name: Upload artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: macOS Executable
-      #     path: dist/scrapegoat_macos_x64
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macOS Executable
+          path: dist/scrapegoat_macos_x64

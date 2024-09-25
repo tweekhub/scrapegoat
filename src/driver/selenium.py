@@ -92,23 +92,30 @@ class BrowserClient:
 
         logger.debug(f"Chrome configured with options: {options.arguments}")
         return options
+
     def _get_chrome_service(self, options: Options) -> Service:
         current_platform = platform.system().lower()
         if getattr(sys, 'frozen', False):
             chrome_path = get_resource_path('chrome_portable')
             chromedriver_path = get_resource_path('chromedriver')
         else:
-            chrome_path = get_resource_path(os.path.join('ungoogled-chromium_128.0.6613.137-1_linux'))
-            chromedriver_path = get_resource_path(os.path.join('ungoogled-chromium_128.0.6613.137-1_linux'))
+            chrome_path = get_resource_path(os.path.join('ungoogled_chromium'))
+            chromedriver_path = get_resource_path(os.path.join('ungoogled_chromium'))
+
         if current_platform.startswith('win'):
             chrome_binary = 'chrome.exe'
             chromedriver_binary = 'chromedriver.exe'
+            chrome_path = os.path.join(chrome_path, 'ungoogled-chromium_129.0.6668.58-1.1_windows')
+            chromedriver_path = os.path.join(chromedriver_path, 'chromedriver', 'chromedriver-win64')
         elif current_platform == 'darwin':
-            chrome_binary = 'ungoogled-chromium_128.0.6613.137-1.1_x86-64-macos-signed'
+            chrome_binary = 'Chromium'
             chromedriver_binary = 'chromedriver'
+            chrome_path = os.path.join(chrome_path, 'Chromium.app', 'Contents', 'MacOS')
         else:  # Linux
             chrome_binary = 'chrome'
             chromedriver_binary = 'chromedriver'
+            chrome_path = os.path.join(chrome_path, 'ungoogled-chromium_129.0.6668.58-1_linux')
+            chromedriver_path = chrome_path
 
         chrome_binary_path = get_resource_path(os.path.join(chrome_path, chrome_binary))
         chromedriver_binary_path = get_resource_path(os.path.join(chromedriver_path, chromedriver_binary))
