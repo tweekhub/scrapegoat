@@ -1,15 +1,26 @@
-name: '   '
+name: 'Build macOS'
 
 on:
-  push:
-    tags:
-      - '*'
+  workflow_call:
+    inputs:
+      python_version:
+        description: 'Python version to use'
+        required: false
+        default: '3.10'
+        type: string
+      chromium_version:
+        description: 'Ungoogled Chromium version'
+        required: false
+        default: '129.0.6668.58-1.1'
+        type: string
+      chromedriver_version:
+        description: 'ChromeDriver version'
+        required: false
+        default: '131.0.6724.0'
+        type: string
 
 env:
-  PYTHON_VERSION: '3.10'
-  CHROMIUM_VERSION: '129.0.6668.58-1.1'
   CHROMIUM_BASE_URL: 'https://github.com/ungoogled-software/ungoogled-chromium-macos/releases/download'
-  CHROMEDRIVER_VERSION: '131.0.6724.0'
   CHROMEDRIVER_BASE_URL: 'https://storage.googleapis.com/chrome-for-testing-public'
   
 jobs:
@@ -23,7 +34,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ inputs.python_version }}
 
       - name: Install pipenv
         run: pip install --user pipenv
@@ -37,12 +48,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ./ungoogled_chromium
-          key: ${{ runner.os }}-chromium-${{ hashFiles('**/${{ env.CHROMIUM_VERSION }}_x86-64-macos.dmg') }}
+          key: ${{ runner.os }}-chromium-${{ inputs.chromium_version }}
 
       - name: Download Ungoogled Chromium
         if: steps.cache-chromium.outputs.cache-hit != 'true'
         run: |
-          curl -L -o ungoogled-chromium.dmg ${CHROMIUM_BASE_URL}/${{ env.CHROMIUM_VERSION }}/ungoogled-chromium_${{ env.CHROMIUM_VERSION }}_x86-64-macos.dmg
+          curl -L -o ungoogled-chromium.dmg ${CHROMIUM_BASE_URL}/${{ inputs.chromium_version }}/ungoogled-chromium_${{ inputs.chromium_version }}_x86-64-macos.dmg
           mkdir -p ./ungoogled_chromium
           hdiutil attach ungoogled-chromium.dmg
           cp -R /Volumes/Ungoogled-Chromium/Ungoogled-Chromium.app ./ungoogled_chromium/
@@ -54,12 +65,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ./ungoogled_chromium/chromedriver
-          key: ${{ runner.os }}-chromedriver-${{ hashFiles('**/${{ env.CHROMEDRIVER_BASE_URL }}/${{ env.CHROMEDRIVER_VERSION }}/mac-x64/chromedriver-mac-x64.zip') }}
+          key: ${{ runner.os }}-chromedriver-${{ inputs.chromedriver_version }}
 
       - name: Download ChromeDriver
         if: steps.cache-chromedriver.outputs.cache-hit != 'true'
-        run: 
-          curl -L -o chromedriver.zip ${CHROMEDRIVER_BASE_URL}/${{ env.CHROMEDRIVER_VERSION }}/mac-x64/chromedriver-mac-x64.zip
+        run: |
+          curl -L -o chromedriver.zip ${CHROMEDRIVER_BASE_URL}/${{ inputs.chromedriver_version }}/mac-x64/chromedriver-mac-x64.zip
           unzip chromedriver.zip
           mv chromedriver ./ungoogled_chromium/
           ls -la ./ungoogled_chromium

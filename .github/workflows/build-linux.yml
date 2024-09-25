@@ -1,14 +1,30 @@
-name: '   '
+name: 'Build Linux'
 
 on:
-  push:
-    tags:
-      - '*'
+  workflow_call:
+    inputs:
+      python_version:
+        description: 'Python version to use'
+        required: false
+        default: '3.10'
+        type: string
+      chromium_version:
+        description: 'Ungoogled Chromium version'
+        required: false
+        default: '129.0.6668.58-1'
+        type: string
+      chromedriver_version:
+        description: 'ChromeDriver version'
+        required: false
+        default: '131.0.6724.0'
+        type: string
 
 env:
-  python_version: '3.10'
-  chromium_version: '129.0.6668.58-1'
-  chromium_base_url: 'https://github.com/ungoogled-software/ungoogled-chromium-portablelinux/releases/download'
+  CHROMIUM_BASE_URL: 'https://github.com/ungoogled-software/ungoogled-chromium-portablelinux/releases/download'
+  CHROMIUM_ARCHIVE_NAME: 'ungoogled-chromium.tar.xz'
+  CHROMEDRIVER_BASE_URL: 'https://storage.googleapis.com/chrome-for-testing-public'
+  CHROMEDRIVER_ARCHIVE_NAME: 'chromedriver.zip'
+  OUTPUT_DIR: 'ungoogled_chromium'
 
 jobs:
   build-linux:
@@ -21,7 +37,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.python_version }}
+          python-version: ${{ inputs.python_version }}
 
       - name: Install Pipenv
         run: pip install --user pipenv
@@ -34,51 +50,30 @@ jobs:
         id: cache-chromium
         uses: actions/cache@v4
         with:
-          path: ./ungoogled_chromium
-          key: ${{ runner.os }}-chromium-${{ hashFiles('**/${{ env.chromium_version }}_linux.tar.xz') }}
+          path: ${{ env.OUTPUT_DIR }}
+          key: ${{ runner.os }}-chromium-${{ inputs.chromium_version }}
 
       - name: Download Ungoogled Chromium
         if: steps.cache-chromium.outputs.cache-hit != 'true'
         run: |
-          curl -L -o ungoogled-chromium.tar.xz ${CHROMIUM_BASE_URL}/${{ env.chromium_version }}/ungoogled-chromium_${{ env.chromium_version }}_linux.tar.xz
-          mkdir -p ./ungoogled_chromium
-          tar -xvf ungoogled-chromium.tar.xz -C ./ungoogled_chromium
+          curl -L -o ${{ env.CHROMIUM_ARCHIVE_NAME }} ${{ env.CHROMIUM_BASE_URL }}/${{ inputs.chromium_version }}/ungoogled-chromium_${{ inputs.chromium_version }}_linux.tar.xz
+          mkdir -p ${{ env.OUTPUT_DIR }}
+          tar -xvf ${{ env.CHROMIUM_ARCHIVE_NAME }} -C ${{ env.OUTPUT_DIR }}
 
-      - name: Debug - List current directory
-        run: |
-          echo "Current directory contents:"
-          ls -R
-          echo "Ungoogled Chromium directory contents:"
-          ls -R ./ungoogled_chromium/ungoogled-chromium_${{ env.chromium_version }}_linux
+      - name: Cache ChromeDriver
+        id: cache-chromedriver
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.OUTPUT_DIR }}/chromedriver
+          key: ${{ runner.os }}-chromedriver-${{ inputs.chromedriver_version }}
 
-      - name: Debug - Print working directory
+      - name: Download ChromeDriver
+        if: steps.cache-chromedriver.outputs.cache-hit != 'true'
         run: |
-          echo "Current working directory:"
-          pwd
+          curl -L -o ${{ env.CHROMEDRIVER_ARCHIVE_NAME }} ${{ env.CHROMEDRIVER_BASE_URL }}/${{ inputs.chromedriver_version }}/linux64/chromedriver-linux64.zip
+          mkdir -p ${{ env.OUTPUT_DIR }}/chromedriver
+          unzip ${{ env.CHROMEDRIVER_ARCHIVE_NAME }} -d ${{ env.OUTPUT_DIR }}/chromedriver
 
-      - name: Debug - List Ungoogled Chromium directory
-        run: |
-          echo "Ungoogled Chromium directory contents:"
-          ls -R ./ungoogled_chromium
-
-      - name: Debug - Print environment variables
-        run: |
-          echo "Environment variables:"
-          env
-
-      - name: Debug - Check Python and Pipenv versions
-        run: |
-          echo "Python version:"
-          python --version
-          echo "Pipenv version:"
-          pipenv --version
-
-      - name: Debug - List Pipenv virtual environment
-        run: |
-          echo "Pipenv virtual environment:"
-          pipenv --venv
-          echo "Pipenv virtual environment contents:"
-          ls -R $(pipenv --venv)
       # - name: Package the app using PyInstaller
       #   run: pipenv run pyinstaller main.spec
 
