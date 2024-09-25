@@ -7,12 +7,12 @@ on:
       - 'v*'
 
 jobs:
-  build-linux:
-    name: Linux x64
-    uses: ./.github/workflows/build-linux.yml
-    with:
-      python_version: '3.10'
-      chromium_version: '129.0.6668.58-1'
+  # build-linux:
+  #   name: Linux x64
+  #   uses: ./.github/workflows/build-linux.yml
+  #   with:
+  #     python_version: '3.10'
+  #     chromium_version: '129.0.6668.58-1'
 
   build-macos:
     name: macOS x64
@@ -22,25 +22,25 @@ jobs:
       chromium_version: '129.0.6668.58-1.1'
       chromedriver_version: '131.0.6724.0'
 
-  build-windows:
-    name: Windows x64
-    uses: ./.github/workflows/build-windows.yml
-    with:
-      python_version: '3.10'
-      chromium_version: '129.0.6668.58-1.1'
-      chromedriver_version: '131.0.6724.0'
+  # build-windows:
+  #   name: Windows x64
+  #   uses: ./.github/workflows/build-windows.yml
+  #   with:
+  #     python_version: '3.10'
+  #     chromium_version: '129.0.6668.58-1.1'
+  #     chromedriver_version: '131.0.6724.0'
 
-  build-docker:
-    name: Docker
-    uses: ./.github/workflows/build-docker.yml
-    with:
-      repo: 'ghcr.io/${{ github.repository }}'
-      context_path: '.'
-      image: 'scrapegoat'
-      tag: ${{ github.ref_name }}
-      dockerfile_path: './GoatFile'
-    secrets:
-      PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
+  # build-docker:
+  #   name: Docker
+  #   uses: ./.github/workflows/build-docker.yml
+  #   with:
+  #     repo: 'ghcr.io/${{ github.repository }}'
+  #     context_path: '.'
+  #     image: 'scrapegoat'
+  #     tag: ${{ github.ref_name }}
+  #     dockerfile_path: './GoatFile'
+  #   secrets:
+  #     PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
 
   # create-release:
   #   needs: [build-linux, build-macos, build-windows, build-docker]

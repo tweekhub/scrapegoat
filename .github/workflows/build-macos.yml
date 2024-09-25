@@ -23,6 +23,7 @@ env:
   CHROMIUM_BASE_URL: 'https://github.com/ungoogled-software/ungoogled-chromium-macos/releases/download'
   CHROMEDRIVER_BASE_URL: 'https://storage.googleapis.com/chrome-for-testing-public'
   OUTPUT_DIR: 'ungoogled_chromium'
+  
 jobs:
   build-macos:
     name: Bundle Executable
@@ -39,7 +40,7 @@ jobs:
       - name: Install pipenv
         run: |
           pip install --user pipenv
-          echo "$HOME/Library/Python/${{ inputs.python_version }}/bin" >> $GITHUB_PATH
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: |
@@ -58,9 +59,14 @@ jobs:
           curl -L -o ungoogled-chromium.dmg ${{ env.CHROMIUM_BASE_URL }}/${{ inputs.chromium_version }}/ungoogled-chromium_${{ inputs.chromium_version }}_x86-64-macos.dmg
           mkdir -p ${{ env.OUTPUT_DIR }}
           hdiutil attach ungoogled-chromium.dmg
-          cp -R /Volumes/Ungoogled-Chromium/Ungoogled-Chromium.app ${{ env.OUTPUT_DIR }}/
-          hdiutil detach /Volumes/Ungoogled-Chromium
+          
+          # Dynamically get the volume name
+          VOLUME_NAME=$(ls /Volumes | grep -i "Chromium")
+          cp -R /Volumes/$VOLUME_NAME/Chromium.app ${{ env.OUTPUT_DIR }}/
+
+          hdiutil detach /Volumes/$VOLUME_NAME
           ls -la ${{ env.OUTPUT_DIR }}
+
 
       - name: Cache ChromeDriver 
         id: cache-chromedriver
