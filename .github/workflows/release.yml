@@ -14,13 +14,13 @@ jobs:
       python_version: '3.10'
       chromium_version: '129.0.6668.58-1'
 
-  build-macos:
-    name: macOS x64
-    uses: ./.github/workflows/build-macos.yml
-    with:
-      python_version: '3.10'
-      chromium_version: '129.0.6668.58-1.1'
-      chromedriver_version: '131.0.6724.0'
+  # build-macos:
+  #   name: macOS x64
+  #   uses: ./.github/workflows/build-macos.yml
+  #   with:
+  #     python_version: '3.10'
+  #     chromium_version: '129.0.6668.58-1.1'
+  #     chromedriver_version: '131.0.6724.0'
 
   build-macos-arm:
     name: macOS ARM
@@ -51,7 +51,7 @@ jobs:
       PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
 
   create-release:
-    needs: [build-linux, build-macos, build-macos-arm, build-windows, build-docker]
+    needs: [build-linux, build-macos-arm, build-windows, build-docker]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

@@ -27,7 +27,7 @@ env:
 jobs:
   build-macos-arm:
     name: Bundle Executable (ARM)
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v4
